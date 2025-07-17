@@ -24,8 +24,7 @@ const customerSchema = new Schema({
         required: true
     },
     subscriptionEnd: {
-        type: Date,
-        required: true
+        type: Date
     },
     gptAccount: {
         type: String,
