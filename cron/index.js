@@ -3,7 +3,8 @@ const getReminderDate = require('./getReminderDate');
 const getSubscriptionEndDate = require('./getSubscriptionEndDate');
 const mail = require('../mail/mail');
 const reminderDateMail = require('../mail/reminderDateMail');
-const subscriptionEndMail = require('../mail/SubscriptionEndMail');
+const subscriptionEndMail = require('../mail/subscriptionEndMail');
+
 
 // Cron job that runs every day at midnight to check for reminders
 const checkReminders = cron.schedule('0 0 * * *', async () => {
