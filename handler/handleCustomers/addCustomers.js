@@ -7,7 +7,7 @@ const addCustomers = async (req, res) => {
         data.user = user
         const customer = await customersModel.create(data)
 
-        res.status(200).json({succes: true, message: 'Customer added successfully', customer, user })
+        res.status(200).json({success: true, message: 'Customer added successfully', customer, user })
     } catch (error) {
         console.log(error)
         res.status(500).json({success: false, message: 'Internal server error'})

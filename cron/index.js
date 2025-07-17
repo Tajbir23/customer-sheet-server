@@ -3,6 +3,7 @@ const getReminderDate = require('./getReminderDate');
 const getSubscriptionEndDate = require('./getSubscriptionEndDate');
 const mail = require('../mail/mail');
 const reminderDateMail = require('../mail/reminderDateMail');
+// @ts-ignore
 const subscriptionEndMail = require('../mail/subscriptionEndMail');
 
 
