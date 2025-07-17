@@ -22,6 +22,9 @@ db()
 // Start cron jobs after database connection
 console.log('Starting cron jobs...')
 // The jobs are already scheduled when imported, but we can control them if needed
+cronJobs.checkReminders.start()
+cronJobs.checkSubscriptionEnd.start()
+cronJobs.dataCleanup.start()
 // cronJobs.checkInactiveCustomers.start()
 // cronJobs.dataCleanup.start()
 

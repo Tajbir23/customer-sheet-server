@@ -11,12 +11,13 @@ const getReminderDate = async() => {
         tomorrowDate.setDate(currentDate.getDate() + 1)
 
         // Find customers whose reminder date is between today midnight and tomorrow midnight
+        // and populate the user data
         const customers = await customersModel.find({
             reminderDate: {
                 $gte: currentDate,
                 $lt: tomorrowDate
             }
-        })
+        }).populate('user')
 
         if (customers.length > 0) {
             console.log('Found customers with reminders for today:', customers.length)

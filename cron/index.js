@@ -1,28 +1,9 @@
 const cron = require('node-cron');
-const Customer = require('../model/customersSchema');
 const getReminderDate = require('./getReminderDate');
-
-// Example cron job that runs every day at midnight to check for inactive customers
-const checkInactiveCustomers = cron.schedule('0 0 * * *', async () => {
-    try {
-        console.log('Running daily check for inactive customers...');
-        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-        
-        const inactiveCustomers = await Customer.find({
-            lastActivity: { $lt: thirtyDaysAgo }
-        });
-
-        console.log(`Found ${inactiveCustomers.length} inactive customers`);
-        // You can add your business logic here, like sending notifications
-        // or updating customer status
-        
-    } catch (error) {
-        console.error('Error in inactive customers cron job:', error);
-    }
-}, {
-    scheduled: true,
-    timezone: "UTC"
-});
+const getSubscriptionEndDate = require('./getSubscriptionEndDate');
+const subscriptionEndMail = require('../mail/SubscriptionEndMail');
+const mail = require('../mail/mail');
+const reminderDateMail = require('../mail/reminderDateMail');
 
 // Cron job that runs every day at midnight to check for reminders
 const checkReminders = cron.schedule('0 0 * * *', async () => {
@@ -32,8 +13,22 @@ const checkReminders = cron.schedule('0 0 * * *', async () => {
         
         if (customersWithReminders.length > 0) {
             customersWithReminders.forEach(customer => {
+                const customerName = customer.customerName
+                const customerEmail = customer.email
+                const customerContact = customer.waOrFbId
+                const gptAccount = customer.gptAccount
+                const reminderNote = customer.reminderNote
+                const adminEmail = customer.user.email
+                const sendMail = async() => {
+                    const body = await reminderDateMail(customerName, customerEmail, customerContact, gptAccount, reminderNote)
+                    await mail(adminEmail, body, 'Reminder for Subscription')
+                }
+                sendMail()
                 console.log(`Reminder for customer: ${customer.customerName}`);
-                console.log(`Email: ${customer.email}`);
+                console.log(`Created By User: ${customer.user.name}`); // User info
+                console.log(`User Email: ${customer.user.email}`); // User info
+                console.log(`Customer Email: ${customer.email}`);
+                console.log(`Order From: ${customer.orderFrom}`);
                 console.log(`Reminder Note: ${customer.reminderNote}`);
                 console.log(`Subscription End: ${customer.subscriptionEnd}`);
                 console.log('-------------------');
@@ -44,6 +39,50 @@ const checkReminders = cron.schedule('0 0 * * *', async () => {
         }
     } catch (error) {
         console.error('Error in reminder check cron job:', error);
+    }
+}, {
+    scheduled: true,
+    timezone: "UTC"
+});
+
+// Cron job that runs every day at midnight to check for subscription end dates
+const checkSubscriptionEnd = cron.schedule('0 0 * * *', async () => {
+    try {
+        console.log('Checking for subscriptions ending in 3 days...');
+        const customersWithEndingSubscriptions = await getSubscriptionEndDate();
+        
+        if (customersWithEndingSubscriptions.length > 0) {
+            customersWithEndingSubscriptions.forEach(customer => {
+                const customerName = customer.customerName
+                const customerEmail = customer.email
+                const customerContact = customer.waOrFbId
+                const gptAccount = customer.gptAccount
+                const note = customer.note
+                const adminEmail = customer.user.email
+
+                const sendMail = async() => {
+                    const body = await subscriptionEndMail(customerName, customerEmail, customerContact, gptAccount, note)
+                    await mail(adminEmail, body, 'Subscription Ending in 3 Days')
+                }
+                sendMail()
+                console.log(`Subscription ending in 3 days for customer: ${customer.customerName}`);
+                console.log(`Created By User: ${customer.user.name}`); // User info
+                console.log(`User Email: ${customer.user.email}`); // User info
+                console.log(`Customer Email: ${customer.email}`);
+                console.log(`Order From: ${customer.orderFrom}`);
+                console.log(`GPT Account: ${customer.gptAccount}`);
+                console.log(`Payment Status: ${customer.paymentStatus}`);
+                console.log(`Last Paid Amount: ${customer.paidAmount}`);
+                console.log(`Payment Method: ${customer.paymentMethod}`);
+                console.log(`WhatsApp/Facebook ID: ${customer.waOrFbId}`);
+                console.log('-------------------');
+                
+                // Here you can add notification logic
+                // For example: sending emails, SMS, or other notifications
+            });
+        }
+    } catch (error) {
+        console.error('Error in subscription check cron job:', error);
     }
 }, {
     scheduled: true,
@@ -66,7 +105,7 @@ const dataCleanup = cron.schedule('0 * * * *', async () => {
 
 // Export the cron jobs so they can be started/stopped from other files
 module.exports = {
-    checkInactiveCustomers,
     checkReminders,
+    checkSubscriptionEnd,
     dataCleanup
 }; 
