@@ -8,7 +8,7 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://customer-sheet.vercel.app']
+    origin: ['http://localhost:5173', 'https://customer-sheet.vercel.app', 'https://customer-sheet-gpt-1.web.app']
 }))
 app.use('/api', mainRoute)
 
