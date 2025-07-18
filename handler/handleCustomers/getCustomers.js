@@ -15,7 +15,8 @@ const getCustomers = async(req, res) => {
                     { customerName: { $regex: search, $options: 'i' } },
                     { email: { $regex: search, $options: 'i' } },
                     { orderFrom: { $regex: search, $options: 'i' } },
-                    { gptAccount: { $regex: search, $options: 'i' } }
+                    { gptAccount: { $regex: search, $options: 'i' } },
+                    { waOrFbId: { $regex: search, $options: 'i' } }
                 ]
             }
         }
