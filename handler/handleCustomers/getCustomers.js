@@ -17,7 +17,7 @@ const getCustomers = async(req, res) => {
                     { orderFrom: { $regex: search, $options: 'i' } },
                     { gptAccount: { $regex: search, $options: 'i' } },
                     { waOrFbId: { $regex: search, $options: 'i' } },
-                    { paymentStatus: { $in: ['paid', 'pending'].filter(status => status.includes(search.toLowerCase())) } }
+                    { paymentStatus : { $regex: search, $options: 'i' } }
                 ]
             }
         }
